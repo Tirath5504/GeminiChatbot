@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 import google.generativeai as genai
+import _thread
 
 load_dotenv()
 
@@ -19,7 +20,11 @@ model = genai.GenerativeModel("gemini-pro")
 chat = model.start_chat(history=[])
 
 
-@st.cache
+def hash_thread_rlock(obj):
+    return 0
+
+
+@st.cache_resource(hash_funcs={_thread.RLock: hash_thread_rlock})
 def get_gemini_response(question):
     try:
         response = chat.send_message(question, stream=True)
