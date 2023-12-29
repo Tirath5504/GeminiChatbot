@@ -9,15 +9,24 @@ load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
+if not GOOGLE_API_KEY:
+    st.error("API key not found. Please set the GOOGLE_API_KEY environment variable.")
+    st.stop()
+
 genai.configure(api_key=GOOGLE_API_KEY)
 
 model = genai.GenerativeModel("gemini-pro")
 chat = model.start_chat(history=[])
 
 
+@st.cache
 def get_gemini_response(question):
-    response = chat.send_message(question, stream=True)
-    return response
+    try:
+        response = chat.send_message(question, stream=True)
+        return response
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        return None
 
 
 st.set_page_config(page_title="Q&A Demo")
