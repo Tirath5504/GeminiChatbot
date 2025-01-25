@@ -23,7 +23,7 @@ if "chat_history" not in st.session_state:
 
 def get_gemini_response(prompt):
     try:
-        response = st.session_state["chat"].send_message(prompt=prompt)
+        response = st.session_state["chat"].send_message(prompt)
         return response
     except Exception as e:
         st.error(f"An error occurred: {e}")
