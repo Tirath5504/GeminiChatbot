@@ -23,8 +23,18 @@ if "chat_history" not in st.session_state:
 
 def get_gemini_response(prompt):
     try:
-        response = st.session_state["chat"].send_message(prompt)
-        return response
+        response = st.session_state["chat"].send_message(prompt, stream=False)
+        if response and response.candidates: 
+            first_candidate = response.candidates[0]
+            if first_candidate.content and first_candidate.content.parts:
+                text_parts = [part.text for part in first_candidate.content.parts if hasattr(part, 'text')]
+                return "".join(text_parts) 
+            else:
+                st.error("Response content or parts are missing.")
+                return None
+        else:
+            st.error("No candidates found in the response.")
+            return None
     except Exception as e:
         st.error(f"An error occurred: {e}")
         return None
@@ -40,7 +50,7 @@ if st.button("Send"):
             response = get_gemini_response(user_input)
             if response:
                 st.session_state["chat_history"].append({"role": "user", "parts": [user_input]})
-                st.session_state["chat_history"].append({"role": "model", "parts": [response.last]})
+                st.session_state["chat_history"].append({"role": "model", "parts": [response]})
 
     for message in st.session_state["chat_history"]:
         with st.chat_message(message["role"]):
